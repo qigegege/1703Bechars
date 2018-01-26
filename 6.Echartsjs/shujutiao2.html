@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/jquery-3.2.1.min.js"></script>
+
+</head>
+<body>
+<div id="main" style="width:1000px; height:500px; margin: 0 auto"></div>
+<script>
+    var myChart = echarts.init(document.getElementById('main'));
+    $.getJSON("json/origin.json",function (a) {
+      console.log(a);
+      var source=[];
+      var unsource=[];
+      var baifen=[];
+      $.each(a.data,function (index,item) {
+          console.log(item.source);
+         source.push(item.source);
+         unsource.push(item.unsource);
+        baifen.push(item.sourcerate);
+        baifen.push(item.unsourcerate);
+
+         console.log(baifen);
+         // var us=item.unsource;
+         // console.log(item.unsource);
+      });
+      // console.log(source);
+        option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b}: {c} ({d}%)"
+            },
+            legend: {
+                // orient: 'vertical',
+                // x: 'left',
+                //
+                data:['稿源单位','非稿源单位'],
+                textStyle:{
+
+                }
+            },
+            series: [
+                {
+                    name:'访问来源',
+                    type:'pie',
+                    radius: baifen,
+
+                    avoidLabelOverlap: false,
+                    label: {
+                        normal: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            show: true,
+                            textStyle: {
+                                fontSize: '30',
+                                fontWeight: 'bold'
+                            }
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            show: false
+                        }
+                    },
+                    data:[
+                        {value:source, name:'稿源单位'},
+                        {value:unsource, name:'非稿源单位'},
+                    ]
+                }
+            ],
+            // data:['稿源单位','非稿源单位'],
+        };
+        myChart.setOption(option);
+    })
+</script>
+</body>
+</html>

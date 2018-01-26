@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+</head>
+<body >
+<div id="main" style="width:1000px; height:500px;background: black; margin: 0 auto"></div>
+<script>
+    var myChart = echarts.init(document.getElementById('main'));
+    $.getJSON("json/fgl.json", function (d) {
+        console.log(d);
+        var times=[];
+        var reprint=[];
+        var original=[];
+        var originaly=[];
+        $.each(d.data,function (index,item) {
+            times.push(item.cdate.substr(5));
+            original.push(item.OriginalCount);
+            reprint.push(item.ReprintCount);
+            originaly.push(item.originalrate.substring(0,5));
+        });
+        console.log(reprint);
+        console.log(originaly);
+        var option={
+            backgroundColor:'black',
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#red'
+                    }
+                }
+            },
+            toolbox: {
+                feature: {
+                    // dataView: {show: true, readOnly: false},//  数据视图
+                    // magicType: {show: true, type: ['line', 'bar']},//  切换为柱形图
+                    // restore: {show: true},// 还原
+                    saveAsImage: {show: true}//  保存原图
+                }
+            },
+            legend: {
+                // data:['转载量','原创量','原创率%'],
+                data:[  {name: '转载量', textStyle:{color:"#fff"}},
+                        {name:'原创量', textStyle:{color:"#fff"}},
+                        {name:'原创率%', textStyle:{color:"#fff"}}
+                      ],
+            },
+
+            xAxis: [
+                {
+                    type: 'category',
+                    data:times,
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    axisLabel:{
+                        interval:0,//  让x轴的所有信息显示
+                        rotate:40 //  x 轴文字旋转60度
+                    },
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+
+                    // type: 'value',
+        // 设置坐标轴字体颜色和宽度
+                   axisLine:{
+                      lineStyle:{
+                         color:'#fff',
+                      }
+                   }
+    },
+            ],
+            yAxis: [
+                {
+                    // axisLine:{show:false},
+                    color:'red',
+                    type: 'value',
+                    // name: '水量',
+                    min: 0,
+                    max: 25000,
+                    interval: 5000,
+                    axisLabel: {
+                        formatter: '{value} ml'
+                    },
+                    axisLine:{
+                        lineStyle:{
+                            color:'#fff',
+                            // width:1
+                        }
+                    },
+
+                },
+                {
+                    type: 'value',
+                    min: 0,
+                    max: 30,
+                    interval: 5,
+                    axisLabel: {
+                        formatter: '{value} %',
+                        // color:"#fff",
+                    },
+                    axisLine:{
+                        lineStyle:{
+                            color:'#fff',
+                            // border:"none"
+                        }
+                    },
+                    splitLine:{
+                        show:false
+                    }
+                }
+            ],
+            dataZoom: [
+
+                {
+                type: 'slider',
+                start: 0,
+                end: 50,
+                height:20,
+                bottom:2,
+                backgroundColor: 'rgb(0,0,0)',
+                color:'red',
+                handleColor: '#77c9ee',
+                textStyle:{
+                    color:"#fff",
+                }
+            }, {
+                type:"inside",
+
+            }],
+
+            // dataZoom: [{
+            //     // type: 'slider',
+            //     // type: 'inside',
+            //     // start: 0,
+            //     // end: 50,
+            //
+            //     // show: true,
+            //     // xAxisIndex: [0],
+            //     handleSize: 20,//滑动条的 左右2个滑动条的大小
+            //     height:20,//组件高度
+            //     // left: 30, //左边的距离
+            //     // right: 40,//右边的距离
+            //     bottom: 10,//右边的距离
+            //     // handleColor: '#ddd',//h滑动图标的颜色
+            //     // handleStyle: {
+            //     //     borderColor: "#cacaca",
+            //     //     borderWidth: "1",
+            //     //     shadowBlur: 2,
+            //     //     background: "#ddd",
+            //     //     shadowColor: "#ddd",
+            //     // },
+            // }, {
+                // start: 0,
+                // end:50,
+                // handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                // handleSize: '80%',
+                // handleStyle: {
+                //     color: '#fff',
+                // //     shadowBlur: 3,
+                // //     shadowColor: 'rgba(0, 0, 0, 0.6)',
+                // //     shadowOffsetX: 1,
+                // //     shadowOffsetY: 1,
+                // }
+            // }],
+            series: [
+                {
+                    name:'转载量',
+                    type:'bar',
+                    stack:"aa",
+                    color:"#bf9366",
+                    itemStyle: {
+                        //柱形图圆角，鼠标移上去效果
+                        // emphasis: {
+                        //     barBorderRadius: [10, 10, 10, 10]
+                        // },
+
+                        normal: {
+                            //柱形图圆角，初始化效果
+                            barBorderRadius:[50, 50, 30, 30]
+                        }
+                    },
+                    data:reprint,
+                },
+                {
+                    name:'原创量',
+                    type:'bar',
+                    stack:"aa",
+                    barWidth:15,
+                    color:"#ff5140",
+                    itemStyle: {
+                        //柱形图圆角，鼠标移上去效果
+                        // emphasis: {
+                        //     barBorderRadius: [10, 10, 10, 10]
+                        // },
+
+                        normal: {
+                            //柱形图圆角，初始化效果
+                            barBorderRadius:[50, 50, 30, 30]
+                        }
+                    },
+                    data:original,
+                },
+                {
+                    name:'原创率%',
+                    type:'line',
+                    yAxisIndex: 1,
+                    color:"#5ebafd",
+                    data:originaly,
+                }
+            ],
+            // dataZoom:[{
+            //     type:"inside"
+            // }],
+        };
+        myChart.setOption(option);
+    });
+    // 使用刚指定的配置项和数据显示图表。
+
+</script>
+</body>
+</html>

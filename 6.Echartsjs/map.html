@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/china.js"></script>
+    <style>
+        *{
+            margin: 0 ;
+            padding: 0;
+        }
+        /*#main{*/
+            /*display: none;*/
+        /*}*/
+        /*#city{*/
+            /*display: none;*/
+        /*}*/
+        #main{
+            margin: 0 auto;
+        }
+      #tab{
+          width:202px;
+          height:40px;
+          background: #312b1f;
+          border: 1px solid #d0ac7a;
+          cursor: pointer;
+          position: absolute;
+          top: 15px;
+          left: 90px;
+          z-index: 999;
+      }
+        .one{
+            width:100px;
+            height:40px;
+            border-right:1px solid #d0ac7a ;
+            text-align: center;
+            line-height: 40px;
+            float:left;
+            color: #fff;
+            cursor: pointer;
+        }
+        .two{
+            width:100px;
+            height:40px;
+            text-align: center;
+            line-height: 40px;
+            float:left;
+            color: #fff;
+            cursor: pointer;
+        }
+        .select{
+            background:red ;
+        }
+        #big .show{
+            display: block !important;
+        }
+        .left{
+            width:966px;
+            height:600px;
+            background: #312b1f;
+            float:left;
+        }
+        .right{
+            width:400px;
+            height:600px;
+            background: #312b1f;
+            float:left;
+        }
+    </style>
+</head>
+<body>
+<div id="tab">
+    <div class="one select">省份</div>
+    <div class="two">城市</div>
+</div>
+<div id="big">
+<span class="main show"  style="width:90%; height:620px; margin: 0 auto ; display: none "></span>
+<span class="city" style="width:1366px;height:620px; margin: 0 auto;  display:none;">
+    <div class="left"></div>
+    <div class="right"></div>
+</span>
+</div>
+    <script>
+    console.log($("#tab div"));
+    $("#tab div").on("click",function () {
+        var ind=$(this).index();
+        $(this).addClass("select").siblings().removeClass("select");
+        $("span").eq(ind).addClass("show").siblings().removeClass("show");
+    })
+    $.getJSON("json/provence.json",function (a){
+        var citys=[];
+        $.each(a.data,function (index,item) {
+           console.log(item);
+           citys.push({name:item.name,value:item.count});
+        });
+
+        shengMap(citys,"map",0,30000);
+        console.log(citys);
+    });
+
+    function shengMap(mapData, mapType, minValue, maxValue) {
+        var myChart = echarts.init(document.getElementsByClassName('main')[0]);
+        option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            visualMap: {
+                min: minValue,
+                max: maxValue,
+                left: 'left',
+                top: 'bottom',
+                text: ['高', '低'],           // 文本，默认为数值文本
+                calculable: true,
+                inRange: {
+                    color: ['#d0ac7a', '#a4875f', '#7b6244']
+                },
+            },
+
+            // toolbox: {
+            //     show: true,
+            //     orient: 'vertical',
+            //     left: 'right',
+            //     top: 'center',
+            //     feature: {
+            //         dataView: {readOnly: false},
+            //         restore: {},
+            //         saveAsImage: {}
+            //     }
+            // },
+            series: [
+                {
+                    name: 'iphone3',
+                    type: 'map',
+                    mapType: 'china',
+                    roam: false,
+                    label: {},
+                    data:mapData
+                },
+            ],
+
+        };
+        myChart.setOption(option);
+    }
+    cityMap();
+    // renderBrushed();
+    function cityMap() {
+        var myChart = echarts.init(document.getElementsByClassName('left')[0]);
+        $.getJSON("json/citys.json", function (t) {
+            // console.log(t.data.name);
+            var cc = [];
+            var bb = {};
+            var jwd = [];
+            var namess = [];
+            var nums = [];
+            $.each(t.data, function (index, item) {
+                namess.unshift(item.name);
+                nums.unshift(item.count);
+                cc.push({name: item.name, value: item.count});
+
+                bb[item.name] = [item.longitude, item.latitude];
+
+
+            });
+            console.log(bb);
+            var data = cc;
+            var geoCoordMap = bb;
+            var convertData = function (data) {
+                var res = [];
+                for (var i = 0; i < data.length; i++) {
+                    var geoCoord = geoCoordMap[data[i].name];
+                    if (geoCoord) {
+                        res.push({
+                            name: data[i].name,
+                            value: geoCoord.concat(data[i].value)
+                        });
+                    }
+                }
+                return res;
+            };
+            option1 = {
+                backgroundColor: '#352d22',
+                title: {
+                    left: 'center',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    orient: 'vertical',
+                    y: 'bottom',
+                    x: 'right',
+                    // data:['pm2.5'],
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                geo: {
+                    map: 'china',
+                    label: {
+                        emphasis: {
+                            show: false
+                        }
+                    },
+                    roam: true,
+                    itemStyle: {
+                        normal: {
+                            areaColor: '#4a3d2c',
+                            borderColor: '#111'
+                        },
+                        emphasis: {
+                            areaColor: '#c19f71'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        type: 'scatter',
+                        coordinateSystem: 'geo',
+                        data: convertData(data),
+                        symbolSize: function (val) {
+                            return 10;
+                        },
+                        label: {
+                            normal: {
+                                formatter: '{b}',
+                                position: 'right',
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        itemStyle: {
+                            normal: {
+                                color: '#ddb926'
+                            }
+                        },
+
+                    },
+                    {
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        data: convertData(data.sort(function (a, b) {
+                            return b.value - a.value;
+                        }).slice(0, 10)),
+                        symbolSize: function (val) {
+                            return 20;
+                        },
+                        showEffectOn: 'render',
+                        rippleEffect: {
+                            brushType: 'stroke'
+                        },
+                        hoverAnimation: true,
+                        // label: {
+                        //     normal: {
+                        //         formatter: '{b}',
+                        //         position: 'right',
+                        //         show: true
+                        //     }
+                        // },
+                        itemStyle: {
+                            normal: {
+                                color: '#f4e925',
+                                shadowBlur: 10,
+                                shadowColor: '#333'
+                            }
+                        },
+                        zlevel: 1
+                    }
+                ],
+
+            };
+            myChart.setOption(option1);
+
+
+
+        // right();
+        // function right(){
+        // $.getJSON("json/citys.json",function (a) {
+        //     console.log(a);
+        //
+        // });
+        // console.log(names);
+        // console.log(names);
+        //     data: convertData(data.sort(function (a, b) {
+        //         return b.value - a.value;
+        //     }).slice(0, 10)),
+        var myChart1 = echarts.init(document.getElementsByClassName('right')[0]);
+            var db=data.sort(function (a, b) {
+                return b.value - a.value;
+            }).slice(0, 10);
+            var x=[];
+            var y=[];
+        $.each(db,function (index,item) {
+            console.log(item);
+            x.unshift(item.name);
+            y.unshift(item.value);
+        });
+        // console.log(y);
+            // console.log(db);
+            var option2 = {
+
+                grid: {
+                    left: '0',
+                    top:"20%",
+                    right: '1%',
+                    bottom: '20%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    boundaryGap: [0, 0.01],
+                    show:false,
+                    top:'20%',
+                },
+                yAxis: {
+                    axisLine:{
+                        show:false
+                    },
+                    splitLine:{
+                        show:false,
+                    },
+
+                    type: 'category',
+                    data:x,
+                    axisLabel:{
+                        color:"#fff"
+                    }
+
+                },
+                backgroundColor: '#352d22',
+                title: {
+                    text:"TOP:10",
+                    left: '0',
+                    top:'5%',
+                    textStyle: {
+                        color: '#fff'
+                    },
+                },
+                tooltip : {
+                    trigger: 'item'
+                },
+            series : [
+                    {
+                        name: '2011年',
+                        type: 'bar',
+                        data:y,
+                        color:'rgb(173,137,99)',
+                    },
+                   ],
+                itemStyle: {
+                    //柱形图圆角，鼠标移上去效果
+                    // emphasis: {
+                    //     barBorderRadius: [10, 10, 10, 10]
+                    // },
+
+                    normal: {
+                        //柱形图圆角，初始化效果
+                        barBorderRadius:[100, 50, 30, 30]
+                    }
+                },
+                // itemStyle: {
+                //     normal: {
+                //         areaColor: 'blue',
+                //         // borderColor: '#111'
+                //     },
+                //     // emphasis: {
+                //     //     areaColor: '#c19f71'
+                //     // }
+                // }
+            };
+
+
+
+        myChart1.setOption(option2);
+        })
+    }
+</script>
+</body>
+</html>

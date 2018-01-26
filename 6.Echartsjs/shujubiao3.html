@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/jquery-3.2.1.min.js"></script>
+
+</head>
+<body>
+<div id="main" style="width:1000px; height:500px; margin: 0 auto"></div>
+<script>
+    var myChart = echarts.init(document.getElementById('main'));
+$.getJSON("json/pcfgl.json",function (d) {
+    console.log(d);
+    var or=[];
+    var re=[];
+    var to=[];
+    var times=[];
+    var datas=d.data[1];
+    for(var i=0;i<datas.originalylist.length;i++){
+        or.push(datas.originalylist[i].count);
+        re.push(datas.republishedlist[i].count);
+        to.push(datas.totallist[i].count);
+        times.push(datas.originalylist[i].time);
+    }
+    option = {
+        title: {
+            text: '堆叠区域图'
+        },
+        tooltip : {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        },
+        legend: {
+            data:['发稿量','原创量','转载量']
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis : [
+            {
+                type : 'category',
+                boundaryGap : false,
+                data : times,
+            }
+        ],
+        yAxis : [
+            {
+                type : 'value'
+            }
+        ],
+        series : [
+            {
+                name:'发稿量',
+                type:'line',
+                stack: '总量',
+                areaStyle: {normal: {}},
+                data:[120, 132, 101, 134, 90, 230, 210]
+            },
+            {
+                name:'原创量',
+                type:'line',
+                stack: '总量',
+                areaStyle: {normal: {}},
+                data:[220, 182, 191, 234, 290, 330, 310]
+            },
+            {
+                name:'转载量',
+                type:'line',
+                stack: '总量',
+                areaStyle: {normal: {}},
+                data:[150, 232, 201, 154, 190, 330, 410]
+            },
+        ]
+    };
+    myChart.setOption(option);
+    // console.log(or);
+})
+</script>
+</body>
+</html>

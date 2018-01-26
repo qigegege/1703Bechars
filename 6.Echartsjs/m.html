@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/china.js"></script>
+</head>
+<body>
+<div id="main" style="width:1000px; height:500px; margin: 0 auto"></div>
+<script>
+    var myChart = echarts.init(document.getElementById('main'));
+    option = {
+        tooltip: {
+            trigger: 'item',
+            formatter: function (params) {
+                return params.name
+
+                    ;//自行定义formatter格式
+            }
+        },
+        visualMap: {
+            min: 0 || 0,//视觉映射组件的最小值
+            max: 3000 || 3000,//视觉映射组件的最大值
+            calculable: true,
+            inRange: {
+                color: ['#cca878', '#a4875f', '#7b6244']
+            },
+            textStyle: {
+                color: '#666'
+            },
+            left: 'left',
+            top: 'bottom',
+            text: ['高', '低'],           // 文本，默认为数值文本
+
+        },
+        geo: {
+            map: 'china',
+            label: {
+                emphasis: {
+                    show: false //城市模式下，鼠标移上去不显示省份名称
+                }
+            },
+            itemStyle: {
+                normal: {
+                    areaColor: '#eeeeee',
+                    borderColor: '#111'
+                },
+                emphasis: {
+                    areaColor: '#00a695',
+                }
+            }
+        },
+        series: [
+            {
+                type:"scatter",  //mapType可选"scatter"或"map",即选择散点图模式或地图模式（显示省份数据为地图模式，显示城市为散点模式）
+                mapType: 'china',
+                coordinateSystem: 'geo',
+                symbolSize: 14,
+                label: {
+                    normal: {
+                        formatter: '{b}',   //城市模式下在地图上显示该城市名称
+                        textStyle: {
+                            color: '#000'
+                        },
+                        show: true
+                    },
+                    emphasis: {
+                        show: true
+                    }
+                },
+                data: [1,4,4,5,7,8,9] //当为地图模式即显示省份数据时，数据格式为： [{name: '山东',value: 183 }, {name: '云南',value: 286 }]
+                //当为散点模式即显示城市数据时，数据格式为： [{name:"厦门",value:[118.1,24.46,183]},{name:"武汉",value:[114.31,30.52,199]}]
+                //散点模式value代表的含义[经度，纬度，人数]
+            }
+        ]
+    };
+    myChart.setOption(option);
+</script>
+</body>
+</html>
